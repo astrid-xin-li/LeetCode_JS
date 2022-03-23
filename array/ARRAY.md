@@ -37,3 +37,69 @@
     const temp = arr.splice(2,2, 10, 11)
     temp -> [3,4]
     arr -> [1,2,10,11,5,6,7]
+
+# 算法
+
+## 二分查找
+    时间复杂度 log(n)
+    条件
+    * 当前数组为有序数组（升/降序）
+    用途
+    * 查找大于等于 某个值的第一个数，例如一个数组中，去查找大于等于 15的第一位数是哪个
+
+# 方法
+## 对于一个有序数组，查找距离每个元素 x 差值内最远的元素是哪位？
+### O(n^2) 两个 for 循环 $\color{red}{0分}$
+```ts
+for (let i = 0; i < arr.length; i++) {
+    for(let j = i + 1; j < arr.length; j++) {
+        if (arr[j] - arr[i] > x) {
+            console.log(`对于当前元素${arr[i]}而言，距离${x}差值内，最大元素为${arr[j - 1]},当前两位距离为${j - 1 - x}`);
+            break;
+        }
+    }
+    if (j > arr.length) {
+        console.log(`对于当前元素${arr[i]}而言，距离${x}差值内，最大元素为${arr[j - 1]},当前两位距离为${j - 1 - x}`);
+    }
+}
+```
+
+### O(n*log(n)) 一个for循环进行查找各个元素，另外通过二分查找方法找出目标元素 $\color{red}{5分}$
+```ts
+// 当前 array 为升序
+const binarySearch = (array: number[], maxTarget: number) => {
+    let left = 0;
+    let right = array.length - 1;
+    let mid = Math.ceil(array.length / 2) - 1;
+    while (left < right) {
+        if (array[mid] < maxTarget) {
+            left = mid;
+            mid = Math.ceil((right + left) / 2);
+        } else if (array[mid] > maxTarget) {
+            right = mid;
+            mid = Math.ceil((right + left) / 2);
+        } else if (array[mid] === maxTarget) {
+            return mid;
+        }
+    }
+    return maxTarget < array[left] ? right : left;
+}
+
+for (let i = 0; i < arr.length; i++) {
+    const j = binarySearch(arr, arr[i] + x);
+    console.log(`对于当前元素${arr[i]}而言，距离${x}差值内，最大元素为${arr[j - 1]},当前两位距离为${j - 1 - x}`);
+}
+```
+
+### O(n) 一个for循环进行查找各个元素，另外一个因为此为有序数组，所以当前元素最大差值目标元素 和 下一个元素的最大差值目标元素，只能一样或者在右边，O(2n)=O(n) $\color{red}{10分}$
+```ts
+// 当前 array 为升序
+let j = 0;
+for (let i = 0; i < arr.length; i++) {
+    const maxTarget = arr[i] + x;
+    while (j < arr.length && arr[j] > maxTarget) {
+        j ++;
+    }
+    console.log(`对于当前元素${arr[i]}而言，距离${x}差值内，最大元素为${arr[j - 1]},当前两位距离为${j - 1 - x}`);
+}
+```
