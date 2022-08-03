@@ -18,6 +18,7 @@ function longestPalindrome(s: string): number {
             map.set(value, 1);
         }
     })
+    // map 的长度是 size 不是 length
     if (map.size) {
         // 现在map里面存储的就是单个字母的，那么回文里面最多只能有一个奇数，所以加上这个就行了
         palindromeLength ++;
