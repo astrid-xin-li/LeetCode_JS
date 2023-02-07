@@ -50,27 +50,13 @@ function ListNode(val) {
     }
     return null;
 
-    // // 求出 a 中所有元素
-    // let temp = headA;
-    // const elementA = [];
-    // while(temp) {
-    //     elementA.push(temp.val);
-    //     temp = temp.next;
+    // 更简单的不用遍历 两个 链表的长度，直接可以找出 max index 指向的位置
+    // ListNode pA = headA, pB = headB;
+    // while (pA != pB) {
+    //     pA = pA == null ? headB : pA.next;
+    //     pB = pB == null ? headA : pB.next;
     // }
-    // while(headB) {
-    //     const element = headB.val;
-    //     const indexA = elementA.indexOf(element);
-    //     if (indexA > -1) {
-    //         let tempA = headA;
-    //         for (let i = 0; i <= indexA && tempA; i++) {
-    //             tempA = tempA.next;
-    //         }
-    //         if (tempA === headB) {
-    //             return headB;
-    //         }
-    //     }
-    // }
-    // return null;
+    // return pA;
 };
 
 
