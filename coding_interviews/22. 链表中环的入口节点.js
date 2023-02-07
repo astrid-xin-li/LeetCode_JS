@@ -19,7 +19,20 @@ function ListNode(val) {
  * @return {ListNode}
  */
  var detectCycle = function(head) {
-    
+    let temp = head;
+    for (let index = 0; temp; index++) {
+        const value = Number(temp.val);
+        if (isNaN(value)) {
+            return temp;
+        }
+        temp.val = `${index}px`;
+        temp = temp.next;
+    }
+    // 最牛的解决方案，应该是操场快慢跑，同时出发一个快一个慢匀速跑问他们什么时候再次碰面
+    // 设置两个指针，一个一次只找 1个，另一个一次找两个，当它们两个指向同一个时就是解题
+    // 快的速度是慢的2倍，慢的走过不重复a，加上重复b相当于，1/2 的快的走过的 a + 重合慢的b + 自行跑了n圈的闭环 b+c
+    // 可以得到 a = n(b + c) - b = c + (n - 1)(b + c)
+    // 当第三个指针从头开始与 slow 一起一个找走，他们两个相同时就是 所求
 };
 
 //  输入：head = [3,2,0,-4], pos = 1
