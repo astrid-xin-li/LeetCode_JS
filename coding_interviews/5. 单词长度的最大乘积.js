@@ -6,7 +6,35 @@
  * @return {number}
  */
  var maxProduct = function(words) {
+    let result = 0;
     const map = new Map();
+    const min = 'a'.charCodeAt();
+    // 最粗暴的解决方法就是 n * n 次遍历， 从头到尾依次与后面的结果进行遍历
+    for(let i = 0; i < words.length; i ++) {
+        const value = words[i];
+        let result = 0;
+        for(let j = 0; j < value.length; j ++) {
+            // 使用按位或，提取出不同元素
+            result |= 1 << (value[j].charCodeAt() - min);
+        }
+        const length = map.get(result) ?? 0;
+        map.set(result, Math.max(length, value.length));
+    }
+    result = 0;
+    // 目前 map 里面存了 各个组合（有一样元素情况下 取最长的）的长度，此时需要进行匹配找到两个组合完全不一样
+    // 使用异或，一旦相同 则 为 0 ，那么两个组合在有相同元素情况下，那么得到的异或结果一定会小于 他们两任意相加的和
+    const arr = Array.from(map);
+    arr.forEach(([key, value], currentIndex) => {
+        for (let index = currentIndex + 1; index < arr.length; index++) {
+            const [otherKey, otherValue] = arr[index];
+            const different = key ^ otherKey;
+            if (different >= (key + otherKey)) {
+                const multi = otherValue * value;
+                result = Math.max(multi, result);
+            }
+        }
+    })
+    return result;
 };
 
 
