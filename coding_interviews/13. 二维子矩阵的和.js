@@ -12,7 +12,14 @@
  * @param {number[][]} matrix
  */
  var NumMatrix = function(matrix) {
-    
+    this.arr = matrix.map(line => {
+        // 对每行从做到右依次累计想加， 第n个元素为，前面0～n-1 个元素的和
+        let sum = 0;
+        return line.map(value => {
+            sum += value;
+            return sum;
+        })
+    })
 };
 
 /** 
@@ -26,10 +33,11 @@ NumMatrix.prototype.sumRegion = function(row1, col1, row2, col2) {
     // 注意一下 row 行，col 列，转换成坐标时要 row -> y , col -> x
     // 整个取值区间应该属于 col1 <= x <= col2, row1 <= y <= row2
     var result = 0;
-    for(var x = col1; x <= col2; x ++) {
-        for(var y = row1; y <= row2; y ++) {
-            result += this.arr[x, y];
-        }
+    // 由于 arr 每行已经是前面元素求累计和所得，所以，只需要从 row1 到 row2 每行的 col2 - col1 - 1 想加所得即可
+    for (let index = row1; index <= row2; index++) {
+        const line = this.arr[index];
+        const different = line[col2] - (line[col1 - 1] ?? 0);
+        result += different;
     }
     return result;
 };
