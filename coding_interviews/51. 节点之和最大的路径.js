@@ -17,7 +17,29 @@
  * @return {number}
  */
 var maxPathSum = function(root) {
-
+    // 后序遍历，从底部向上依次返回包含 MAX(left, right) + value 情况下值，作为上一层的 左/右 孩子
+    // 当 当前 left + right + value 为最大时需要记录一下
+    // 忘记考虑 val 为负数情况，所以此处不能用 0
+    let max = null;
+    const postOrderTraversal = (node) => {
+        if (!node) {
+            return 0;
+        }
+        const left = postOrderTraversal(node.left) ?? 0;
+        const right = postOrderTraversal(node.right) ?? 0;
+        // 因为若需要包含当前节点，的左右两边孩子，需要考虑两边孩子都为负数时，直接去当前节点值即可
+        const current = Math.max(left, 0) + Math.max(right, 0) + node.val;
+        if (max === null) {
+            max = current;
+        }
+        if (current > max) {
+            max = current;
+        }
+        // 因为不需要考虑出发点是否为子节点，所以，若孩子最大的也为负数，则去自身即可
+        return node.val + Math.max(Math.max(left, right), 0);
+    }
+    postOrderTraversal(root);
+    return max;
 };
 
 // https://leetcode.cn/problems/jC7MId/?envType=study-plan&id=lcof-ii&plan=lcof&plan_progress=bv0usar
@@ -34,3 +56,10 @@ var maxPathSum = function(root) {
 
 // 树中节点数目范围是 [1, 3 * 104]
 // -1000 <= Node.val <= 1000
+
+t = {
+    val: -10,
+    left: {
+        val: 9
+    }
+}
