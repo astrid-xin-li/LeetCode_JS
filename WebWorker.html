@@ -1,0 +1,80 @@
+// 当前是 脚本1 ./script1.js
+let i = 1;
+function count() {
+    i++;
+    <!-- 每次加一 就通知一次主线程 -->
+    <!-- 在 worker 内部 self 就是指当前 this，当前这个 worker 线程 -->
+    self.postMessage(i);
+    <!-- 一秒后循环执行 -->
+    setTimeout(count, 1000);
+    if (i > 100) {
+        <!-- 当循环超过 100 次就自我关闭 -->
+        self.close()
+    }
+}
+
+count();
+<!-- 定义当接收到 主线程发送的信息时的处理回调 对应 window.workTest.postMessage -->
+self.onmessage = ev => {
+    <!-- 可以写为 self.addEventListener('message', ev => {...}) -->
+    <!-- 此处加载图片 -->
+    const req = new XMLHttpRequest();
+    req.open('GET', ev.data, true);
+    req.responseType = "blob";
+    req.setRequestHeader("client_type", "DESKTOP_WEB");
+    req.onreadystatechange = () => {
+        if (req.readyState === 4) {
+            <!-- 将请求到的图片 二进制 传递给主线程 -->
+            postMessage(req.response);
+        }
+    }
+    req.send(null);
+}
+<!-- 自己定义自身发生错误时的回调 -->
+self.onerror = err => {
+    <!-- 可以写为 self.addEventListener('error', err => {...}) -->
+    console.log('worker error');
+    <!-- 可以在 worker 加载脚本 -->
+    importScripts('./script2.js');
+    <!-- 加载多个脚本 为 importScripts('./script2.js'， './script3.js'); -->
+}
+
+// 当前是 脚本2 ./script2.js
+
+
+// 当前是 主线程加载的 main 脚本
+<div>
+    Worker 输出内容： <div id="worker-container"></div>
+    <br/>
+    <input type="text" id="message">
+    <button onclick="sendMessage()">加载上述输入的图片地址</button>
+    <button onclick="stopWorker()">终止</button>
+</div>
+<script type="text/javascript">
+    if (typeof Worker === "undefined") {
+        // 当前浏览器不支持 Worker
+        // 在文档中追加说明
+        document.writeln('当前浏览器不支持 Worker');
+    } else {
+        // 语法： new Worker（同源脚本链接，【可选】配置项目入名字当前 worker 线程的名字，用于区分多个 worker）
+        window.workerTest = new Worker('./script1.js', {name: 'worker1'})
+        // 语法： 定义 主线程 接收到 worker 线程调用 postMessage 的回调
+        window.workerTest.onmessage = ev => {
+            // 语法：也可以用 document.addEventListener('message', ev => {...}) 就是得单独区分是不是 worker1 传递的信息
+            document.getElementById('worker-container')?.innerText = ev.data;
+        }
+        // 语法： 定义 主线程 接收到 worker 线程 发生错误 的回调
+        window.workerTest.onerror = err => {
+            // 语法：也可以用 document.addEventListener('error', err => {...}) 就是得单独区分是不是 worker1 传递的信息
+            stopWorker();
+        }
+        function stopWorker() {
+            // terminate 终止 workerTest 这个 worker 线程
+            window.workerTest.terminate();
+        }
+        function sendMessage() {
+            // 向 worker1 线程发送处理内容
+            window.workerTest.possMessage(document.getElementById('message')?.value ?? '');
+        }
+    }
+</script>
